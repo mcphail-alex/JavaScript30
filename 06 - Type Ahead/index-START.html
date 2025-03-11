@@ -18,6 +18,36 @@
 <script>
 const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
+let cities = []
+
+fetch(endpoint)
+  .then(blob => blob.json())
+  .then(data => cities = data)
+
+let findMatches = (regex) => {
+  return cities.filter(place => {  
+    return place.city.match(regex) || place.state.match(regex)
+  })
+}
+
+let createHtml = (match, regex) => {
+  let cityName = match.city.replace(regex, (matched) => `<span class="hl">${matched}</span>`)
+  let stateName = match.state.replace(regex, (matched) => `<span class="hl">${matched}</span>`)
+  return `
+    <li>
+      <span>${cityName}, ${stateName}</span>
+      <span>${match.population}</span>
+    </li>
+  `
+}
+
+document.querySelector('.search').addEventListener('input', function() {
+  let regex = new RegExp(this.value, 'gi')
+  let matches = findMatches(this.value)
+  let html = matches.map(match => createHtml(match, regex)).join('')
+  document.querySelector('.suggestions').innerHTML = html
+})
+
 </script>
 </body>
 </html>
